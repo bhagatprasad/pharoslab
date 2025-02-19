@@ -1,0 +1,100 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Login</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="">
+    <meta name="author" content="Phoenixcoded" />
+    <!-- Favicon icon -->
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <!-- vendor css -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="css/custom-tabulator.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="assets/css/sidebar.css" rel="stylesheet" />
+    <link href="assets/css/loader.css" rel="stylesheet" />
+</head>
+<body class="">
+    <div class="se-pre-con"></div>
+
+    <div class="auth-wrapper">
+        <div class="auth-content text-center">
+            <form id="formAuthentication" class="mb-3">
+                <div class="card borderless">
+                    <div class="row align-items-center ">
+                        <div class="col-md-12">
+                            <div class="card-body">
+                                <h4 class="mb-3 f-w-400">Signin</h4>
+                                <hr />
+                                <div class="form-group mb-4">
+                                    <label for="username" class="form-label text-left" style="float: left">Username</label>
+                                    <div class="input-group">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text"><i class="fa fa-user"></i></span>
+                                        </div>
+                                        <input type="text" class="form-control" id="username" name="username" placeholder="email/phone" autofocus required />
+                                    </div>
+                                </div>
+                                <div class="form-row  mb-4">
+                                    <label for="password" class="form-label">Password</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="password" name="password" placeholder="*****" autofocus required />
+                                        <div class="input-group-append" style="border-right:1px solid #afb4ba;">
+                                            <span class="input-group-text toggle-password"><i class="fa fa-eye-slash"></i></span>
+                                        </div>
+                                    </div>
+
+                                </div>
+                               
+                                <div class="custom-control custom-checkbox text-left mb-4 mt-2">
+                                    <input type="checkbox" class="custom-control-input" id="customCheck1">
+                                    <label class="custom-control-label" for="customCheck1">Save credentials.</label>
+                                </div>
+                                <button class="btn btn-block btn-primary mb-4" type="button" id="btnSubmit">Signin</button>
+                                <hr>
+                                <p class="mb-2 text-muted">Forgot password? <a href="auth-reset-password.html" class="f-w-400">Reset</a></p>
+                                <p class="mb-0 text-muted">Don’t have an account? <a href="auth-signup.html" class="f-w-400">Signup</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <script src="lib/jquery/dist/jquery.min.js"></script>
+            <script src="js/AccountController.js"></script>
+            <script type="text/javascript">
+                $(function () {
+                    var ctrl = new AccountController();
+                    ctrl.init();
+                });
+            </script>
+        </div>
+    </div>
+
+    <script src="lib/jquery/dist/jquery.min.js"></script>
+    <script src="assets/js/vendor-all.min.js"></script>
+    <script src="assets/js/plugins/bootstrap.min.js"></script>
+    <script src="assets/js/pcoded.js"></script>
+    <script src="assets/js/plugins/apexcharts.min.js"></script>
+    <script src="assets/js/pages/dashboard-main.js"></script>
+    <script src="js/site.js" asp-append-version="true"></script>
+    <script src="js/CommonController.js"></script>
+    <script src="js/StorageService.js"></script>
+    <script src="js/ConnectivityController.js"></script>
+    <script>
+        $(window).on('load', function () {
+            $(".se-pre-con").hide();
+        });
+
+        $(document).ajaxStart(function () {
+            $(".se-pre-con").show();
+        });
+
+        $(document).ajaxComplete(function () {
+            $(".se-pre-con").hide();
+        });
+    </script>
+</body>
+</html>

@@ -73,7 +73,7 @@ function makeAjaxRequest({
 }) {
     const BASE_API_URL = 'http://localhost:5265/api';
     const baseUrl = `${BASE_API_URL}${url}`;
-    const token = localStorage.getItem('AccessToken');
+    const token = storageService.get('AccessToken');
 
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;
@@ -454,9 +454,9 @@ const next = e => {
     }
 };
 
-document
-    .querySelector('button')
-    .addEventListener('click', next);
+//document
+//    .querySelector('button')
+//    .addEventListener('click', next);
 
 function generateUniquePhoneNumber() {
     var phoneNumber = '';

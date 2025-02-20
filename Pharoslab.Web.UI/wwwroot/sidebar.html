@@ -1,0 +1,17 @@
+﻿<nav class="pcoded-navbar navbar-collapsed">
+    <ul class="nav pcoded-inner-navbar" id="dynamic-nav"></ul>
+    <style>
+        .pcoded-submenu {
+            display: none;
+            padding-left: 20px;
+        }
+    </style>
+    <script src="lib/jquery/dist/jquery.min.js"></script>
+    <script src="js/DynamicSideBarController.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            var ctrl = new DynamicSideBarController();
+            ctrl.init();
+        });
+    </script>
+</nav>

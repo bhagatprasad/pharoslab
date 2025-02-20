@@ -1,82 +1,174 @@
 ﻿function UserController() {
     var self = this;
-    self.coreDBRoles = [];
     self.ApplicationUser = {};
-    var actions = [];
-    var dataObjects = [];
-    actions.push('/Role/FetchRoles');
+    self.selectedRows = [];
+
+    self.currectSelectedUser = {};
     self.init = function () {
+        //  kendo.ui.licensing.setLicenseKey("NONE");
+        console.log(typeof $.fn.kendoGrid);
         var appuser = storageService.get("ApplicationUser");
         if (appuser) {
             self.ApplicationUser = appuser;
         }
-        self.usersgrid = new Tabulator("#usersgrid", {
-            ajaxURL: '/User/FetchUsers',
-            ajaxParams: {},
-            ajaxConfig: {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
+        $("#UserGrid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "http://localhost:5265/api/User/FetchUsersAsync",
+                        dataType: "json"
+                    }
                 },
-            },
-            ajaxResponse: function (url, params, response) {
-                return response.data;
-            },
-            height: "600px",
-            layout: "fitColumns",
-            resizableColumnFit: true,
-            columns: [
-                { title: "Name", field: "FullName" },
-                { title: "Email", field: "Email" },
-                { title: "Phone", field: "Phone" },
-                { title: "Role", field: "RoleName" },
-                { title: "Hospital Name", field: "HospitalName" },
-                { title: "Department Name", field: "DepartmentName" },
-                { title: "Designation", field: "Designation" },
-                {
-                    title: "Is Blocked",
-                    field: "IsBlocked",
-                    formatter: "tickCross",
-                    align: "center"
-                },
-                {
-                    title: "Is Active",
-                    field: "IsActive",
-                    formatter: "tickCross",
-                    align: "center"
+                pageSize: 50,
+                schema: {
+                    model: {
+                        fields: {
+                            id: { type: "guid" },
+                            firstName: { type: "string" },
+                            lastName: { type: "string" },
+                            email: { type: "string" },
+                            phone: { type: "string" },
+                            lastPasswordChangedOn: { type: "date" },
+                            isBlocked: { type: "boolean" },
+                            isActive: { type: "boolean" }
+                        }
+                    }
                 }
-            ]
+            },
+            pageable: true,
+            sortable: true,
+            columns: [
+                {
+                    title: "<input type='checkbox' id='parentUserChkbox' style='margin-top: 22px;'>",
+                    template: "<input type='checkbox' class='childUserChkbox' data-uid='#= uid #' />",
+                    width: 30,
+                    headerAttributes: { style: "text-align: center;" },
+                    attributes: { style: "text-align: center;" }
+                },
+                { field: "id", title: "ID", hidden: true },
+                { field: "firstName", title: "First Name" },
+                { field: "lastName", title: "Last Name" },
+                { field: "email", title: "Email" },
+                { field: "phone", title: "Phone" },
+                { field: "lastPasswordChangedOn", title: "Last Password Changed", format: "{0:MM/dd/yyyy HH:mm}" },
+                { field: "isBlocked", title: "Is Blocked", template: "#= isBlocked ? 'Yes' : 'No' #" },
+                { field: "isActive", title: "Is Active", template: "#= isActive ? 'Yes' : 'No' #" }
+            ],
+            dataBound: function () {
+                var grid = this;
+                var selectedRows = grid.select();
+                self.selectedRows = selectedRows.map(function (row) {
+                    return grid.dataItem(row);
+                });
+
+                // Check if all rows are selected
+                var allSelected = selectedRows.length && selectedRows.length === grid.items().length;
+                $('#parentUserChkbox').prop('checked', allSelected);
+
+                // Disable all buttons initially
+                disableAllButtons();
+
+                // Enable buttons based on selection
+                if (self.selectedRows.length > 0) {
+                    enableButtons();
+                }
+
+                // Update the current selected lab test
+                if (self.selectedRows.length === 1) {
+                    self.currectSelectedUser = self.selectedRows[0];
+                } else {
+                    self.currectSelectedUser = {};
+                }
+
+                console.log("Selected Rows:", self.selectedRows);
+                console.log("Current Selected Lab Test:", self.currectSelectedUser);
+
+            }
         });
-        var requests = actions.map((action, index) => {
-            var ajaxConfig = {
-                url: action,
-                method: 'GET'
-            };
-            return $.ajax(ajaxConfig);
+        function disableAllButtons() {
+            $(".custom-cursor").addClass("disabled");
+            $("#addBtn").addClass("disabled");
+            $("#editBtn").addClass("disabled");
+            $("#deleteBtn").addClass("disabled");
+            $("#copyBtn").addClass("disabled");
+        }
+
+        function enableButtons() {
+            $(".custom-cursor").removeClass("disabled");
+
+            // Get the selected rows from the Kendo Grid
+            var selectedRows = $("#UserGrid").data("kendoGrid").select();
+            var hasMultipleSelection = selectedRows.length > 1;
+
+            if (hasMultipleSelection) {
+                // Disable edit, delete, and copy buttons when multiple rows are selected
+                $("#editBtn").addClass("disabled");
+                $("#deleteBtn").addClass("disabled");
+                $("#copyBtn").addClass("disabled");
+                $("#addBtn").removeClass("disabled"); // Allow adding new items
+            } else if (selectedRows.length === 1) {
+                // Enable edit, delete, and copy buttons when one row is selected
+                $("#editBtn").removeClass("disabled");
+                $("#deleteBtn").removeClass("disabled");
+                $("#copyBtn").removeClass("disabled");
+                $("#addBtn").addClass("disabled"); // Disable adding new items when editing
+            } else {
+                // No rows selected
+                disableAllButtons();
+            }
+        }
+
+        // Handle parent checkbox change
+        $(document).on("change", "#parentUserChkbox", function () {
+            var isChecked = $(this).is(":checked");
+            $(".childUserChkbox").prop("checked", isChecked);
+            if (isChecked) {
+                $("#UserGrid").data("kendoGrid").select($("#UserGrid").data("kendoGrid").items());
+            } else {
+                $("#UserGrid").data("kendoGrid").clearSelection();
+            }
         });
 
-        $.when.apply($, requests).done(function (...responses) {
-            self.coreDBRoles = responses[0]?.data || [];
-            var loggedInUserRole = self.coreDBRoles.find(role => role.RoleId === self.ApplicationUser.RoleId);
-            if (loggedInUserRole) {
-                var userRoles = self.filterRoles(loggedInUserRole.Name, self.coreDBRoles);
-                genarateDropdown("RoleId", userRoles, "RoleId", "Name");
+        // Handle child checkbox change
+        $(document).on("change", ".childUserChkbox", function () {
+            var row = $(this).closest("tr");
+            if ($(this).is(":checked")) {
+                $("#UserGrid").data("kendoGrid").select(row);
+            } else {
+                $("#UserGrid").data("kendoGrid").clearSelection(row);
             }
-            hideLoader();
-        }).fail(function () {
-            console.log('One or more requests failed.');
-        });
 
-        self.filterRoles = function (loggedInRole, roles) {
-            if (loggedInRole === 'Administrator') {
-                return roles;
-            }
-            return [];
-        };
+            // Check if all child checkboxes are checked
+            var allRows = $("#UserGrid").data("kendoGrid").items();
+            var allChecked = true;
+
+            allRows.each(function () {
+                var checkbox = $(this).find(".childUserChkbox");
+                if (!checkbox.is(":checked")) {
+                    allChecked = false;
+                }
+            });
+
+            $("#parentUserChkbox").prop("checked", allChecked);
+        });
 
         makeFormGeneric('#AddEditUserForm', '#btnsubmit');
 
+        function makeFormGeneric(formSelector, submitButtonSelector) {
+            var form = $(formSelector);
+            var submitButton = $(submitButtonSelector);
 
+            form.on('input change', 'input, select, textarea', checkFormValidity);
+            checkFormValidity();
+
+            function checkFormValidity() {
+                if (form[0].checkValidity()) {
+                    submitButton.prop('disabled', false);
+                } else {
+                    submitButton.prop('disabled', true);
+                }
+            }
+        }
         $(document).on("click", "#addBtn", function () {
             $('#sidebar').addClass('show');
             $('body').append('<div class="modal-backdrop fade show"></div>');

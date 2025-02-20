@@ -63,7 +63,13 @@ namespace Pharoslab.Web.API
                     ValidateActor = false
                 };
             });
-
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy", builder =>
+                    builder.WithOrigins("http://localhost:5095")
+                           .AllowAnyHeader()
+                           .AllowAnyMethod());
+            });
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy",

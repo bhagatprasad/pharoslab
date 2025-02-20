@@ -1,0 +1,611 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+
+    <style>
+        html {
+            font-size: 14px;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .pcoded-submenu {
+            display: none;
+            padding-left: 20px;
+        }
+    </style>
+    <title>Home</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="">
+    <meta name="author" content="Phoenixcoded" />
+    <!-- Favicon icon -->
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link href="https://kendo.cdn.telerik.com/themes/10.2.0/default/default-main.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://kendo.cdn.telerik.com/2025.1.211/js/kendo.all.min.js"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="css/custom-tabulator.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="assets/css/sidebar.css" rel="stylesheet" />
+    <!--<script src="assets/js/vendor-all.min.js"></script>-->
+    <script src="assets/js/plugins/bootstrap.min.js"></script>
+    <!--<script src="assets/js/pcoded.js"></script>-->
+    <script src="js/StorageService.js"></script>
+    <script src="js/ConnectivityController.js"></script>
+</head>
+<body class="">
+    <script src="https://unpkg.com/jszip/dist/jszip.min.js"></script>
+    <!-- [ Pre-loader ] start -->
+    <div class="overlay" id="overlay">
+        <div class="spinner-border text-success" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+
+    <nav class="pcoded-navbar navbar-collapsed">
+        <ul class="nav pcoded-inner-navbar" id="dynamic-nav">
+            <li class="nav-item">
+                <a href="index.html" class="nav-link">
+                    <span class="pcoded-micon"><i class="feather icon-user-md"></i></span>
+                    <span class="pcoded-mtext">My Info</span>
+                </a>
+            </li>
+        </ul>
+
+    </nav>
+    <header class="navbar pcoded-header navbar-expand-lg navbar-light header-dark">
+        <div class="m-header">
+            <a class="mobile-menu" id="mobile-collapse" href="#!"><span></span></a>
+            <a href="#!" class="b-brand" style="margin-left: -61px;">
+                <!-- ========   change your logo hear   ============ -->
+                <img src="assets/logo-dark.png" alt="" class="logo">
+                <img src="assets/images/logo-icon.png" alt="" class="logo-thumb">
+            </a>
+            <a href="#!" class="mob-toggler">
+                <i class="feather icon-more-vertical"></i>
+            </a>
+        </div>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a href="#!" class="pop-search"><i class="feather icon-search"></i></a>
+                    <div class="search-bar">
+                        <input type="text" class="form-control border-0 shadow-none" placeholder="Search hear">
+                        <button type="button" class="close" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                <li>
+                    <div class="dropdown drp-user">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="feather icon-user"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right profile-notification">
+                            <div class="pro-head">
+                                <img src="assets/images/browser/chrome.png" class="img-radius" alt="User-Profile-Image">
+                                <p id="employeeFullName"></p>
+                                <a href="Login.html" class="dud-logout" title="Logout">
+                                    <i class="feather icon-log-out"></i>
+                                </a>
+                            </div>
+                            <ul class="pro-body">
+                                <li><a href="user-profile.html" class="dropdown-item"><i class="feather icon-user"></i> Profile</a></li>
+                                <li><a href="email_inbox.html" class="dropdown-item"><i class="feather icon-mail"></i> My Messages</a></li>
+                                <li><a href="auth-signin.html" class="dropdown-item"><i class="feather icon-lock"></i> Lock Screen</a></li>
+                            </ul>
+                        </div>
+                        <script src="js/UserProfileController.js"></script>
+                        <script type="text/javascript">
+                            $(function () {
+                                var ctrl = new UserProfileController();
+                                ctrl.init();
+                            });
+                        </script>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+    </header>
+    <div class="pcoded-main-container">
+        <div class="pcoded-content">
+            <!-- [ breadcrumb ] start -->
+            <div class="page-header">
+                <div class="page-block">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <ul class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="Index.html"><i class="feather icon-home"></i></a></li>
+                                <li class="breadcrumb-item"><a id="dynamicBreadcrumb"></a></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6 text-right">
+                            <button id="envVersionButton" class="btn  btn-md">Loading...</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    const environment = storageService.get('Environment');
+                    const version = storageService.get('Version');
+                    document.getElementById("envVersionButton").textContent = `${environment} - ${version}`;
+
+                    const applicationUser = storageService.get('ApplicationUser');
+
+                    // Extract the current path and set the breadcrumb link and title
+                    const currentPath = window.location.pathname;
+                    const pathSegments = currentPath.split('/').filter(segment => segment);
+
+                    // Check if there are enough segments in the path
+                    if (pathSegments.length > 1) {
+                        const dynamicSegment = pathSegments[0];
+                        const dynamicIndex = pathSegments[1]; // Get the last segment for index
+                        const dynamicPath = `/${dynamicSegment}/${dynamicIndex}`;
+                        document.getElementById("dynamicBreadcrumb").setAttribute("href", dynamicPath);
+                        document.getElementById("dynamicBreadcrumb").textContent = `${dynamicSegment.charAt(0).toUpperCase() + dynamicSegment.slice(1)}`;
+                    } else {
+                        document.getElementById("dynamicBreadcrumb").setAttribute("href", "index.html");
+                        document.getElementById("dynamicBreadcrumb").textContent = "My Info";
+                    }
+                    const envVersionButton = document.getElementById("envVersionButton");
+                    envVersionButton.textContent = `${environment} - ${version}`;
+
+                    // Check if the hostname is localhost or production and update the button class accordingly
+                    const hostname = window.location.hostname;
+                    if (hostname === 'localhost') {
+                        envVersionButton.classList.add('btn-warning');
+                        envVersionButton.classList.remove('btn-primary');
+                    } else {
+                        envVersionButton.classList.add('btn-primary');
+                        envVersionButton.classList.remove('btn-warning');
+                    }
+                });
+            </script>
+        </div>
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-header card-header-padding">
+                        <div class="float-left">
+                            <span id="addBtn" class="padding-rigt custom-cursor">
+                                <i class="fa fa-plus-circle" title="add"></i>
+                            </span>
+                            <span id="editBtn" class="padding-rigt custom-cursor">
+                                <i class="fa fa-pencil" title="edit"></i>
+                            </span>
+                            <span id="deleteBtn" class="padding-rigt custom-cursor"><i class="fa fa-trash" title="delete"></i></span>
+                            <span id="copyBtn" class="padding-rigt custom-cursor"><i class="fa fa-plus-square-o" title="copy"></i></span>
+                            <span id="permissionBtn" class="custom-cursor permission-hidden"><i class="fa fa-key" title="manage permissions"></i></span>
+                            <span id="campaignBtn" class="custom-cursor permission-hidden"><i class="fa fa-key" title="manage campaign"></i></span>
+                            <span id="dealerBtn" class="custom-cursor permission-hidden"><i class="fa fa-key" title="manage dealer"></i></span>
+                        </div>
+                        <div class="float-right">
+                            <span id="pdfBtn" class="custom-cursor padding-right">
+                                <i class="fa-solid fa-file-pdf permission-hidden" title="pdf" id="tenantDealerDetailInfoPDF"></i>
+                            </span>
+                            <span id="importBtn" class="custom-cursor padding-right">
+                                <i class="fa fa-upload" title="import"></i>
+                            </span>
+                            <span id="exportBtn" class="custom-cursor" data-toggle="dropdown">
+                                <i class="fa fa-download" title="export"></i>
+                            </span>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a class="dropdown-item" href="#" id="exportTemplate">Export Template</a>
+                                <a class="dropdown-item" href="#" id="exportWithGridData">Export with Grid Data</a>
+                                <a class="dropdown-item" href="#" id="exportWithOriginalData">Export with Original Data</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body card-body-padding">
+                        <div id="UserGrid"></div>
+                    </div>
+                </div>
+                <form id="AddEditUserForm">
+                    <div class="sidebar" id="sidebar">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Add/Edit User</h5>
+                            <button type="button" class="close" id="closeSidebar" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="UserName">User Name</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-user"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" id="UserName" placeholder="Enter  name" autofocus required />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="UserDescription">User Description</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-user"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" id="UserDescription" placeholder="Enter description" autofocus required />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" id="btnsubmit" class="btn btn-primary" form="AddEditUserForm">Submit</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <script src="js/UserController.js"></script>
+            <script type="text/javascript">
+                $(function () {
+                    var ctrl = new UserController();
+                    ctrl.init();
+                });
+
+            </script>
+        </div>
+        <!--<div id="example">
+            <div id="grid"></div>
+            <script>
+                $(document).ready(function () {
+                    var crudServiceBaseUrl = "https://demos.telerik.com/kendo-ui/service",
+                        dataSource = new kendo.data.DataSource({
+                            transport: {
+                                read: {
+                                    url: crudServiceBaseUrl + "/detailproducts",
+                                    dataType: "jsonp"
+                                },
+                                update: {
+                                    url: crudServiceBaseUrl + "/detailproducts/Update",
+                                    dataType: "jsonp"
+                                },
+                                destroy: {
+                                    url: crudServiceBaseUrl + "/detailproducts/Destroy",
+                                    dataType: "jsonp"
+                                },
+                                parameterMap: function (options, operation) {
+                                    if (operation !== "read" && options.models) {
+                                        return { models: kendo.stringify(options.models) };
+                                    }
+                                }
+                            },
+                            batch: true,
+                            pageSize: 20,
+                            autoSync: true,
+                            aggregate: [{
+                                field: "TotalSales",
+                                aggregate: "sum"
+                            }],
+                            group: {
+                                field: "Category.CategoryName",
+                                dir: "desc",
+                                aggregates: [
+                                    { field: "TotalSales", aggregate: "sum" }
+                                ]
+                            },
+                            schema: {
+                                model: {
+                                    id: "ProductID",
+                                    fields: {
+                                        ProductID: { editable: false, nullable: true },
+                                        Discontinued: { type: "boolean", editable: false },
+                                        TotalSales: { type: "number", editable: false },
+                                        TargetSales: { type: "number", editable: false },
+                                        LastSupply: { type: "date" },
+                                        UnitPrice: { type: "number" },
+                                        UnitsInStock: { type: "number" },
+                                        Category: {
+                                            defaultValue: {
+                                                CategoryID: 8,
+                                                CategoryName: "Seafood"
+                                            }
+                                        },
+                                        Country: {
+                                            defaultValue: {
+                                                CountryNameLong: "Bulgaria",
+                                                CountryNameShort: "bg"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+
+                    $("#grid").kendoGrid({
+                        dataSource: dataSource,
+                        columnMenu: {
+                            filterable: false
+                        },
+                        height: 680,
+                        editable: "incell",
+                        pageable: true,
+                        sortable: true,
+                        navigatable: true,
+                        resizable: true,
+                        reorderable: true,
+                        groupable: true,
+                        filterable: true,
+                        dataBound: onDataBound,
+                        toolbar: ["excel", "pdf", "search"],
+                        pdfExport: function (e) {
+                            const width = e.sender.wrapper.width();
+                            e.sender.wrapperClone.width(width);
+                            e.sender.wrapperClone.addClass('k-clone');
+                        },
+                        columns: [{
+                            selectable: true,
+                            width: 75,
+                            attributes: {
+                                "class": "checkbox-align",
+                            },
+                            headerAttributes: {
+                                "class": "checkbox-align",
+                            }
+                        }, {
+                            field: "ProductName",
+                            title: "Product Name",
+                            template: "<div class='product-photo' style='background-image: url(../content/web/foods/#:data.ProductID#.jpg);'></div><div class='product-name'>#: ProductName #</div>",
+                            width: 300
+                        }, {
+                            field: "UnitPrice",
+                            title: "Price",
+                            format: "{0:c}",
+                            width: 105
+                        }, {
+                            field: "Discontinued",
+                            title: "In Stock",
+                            template: "<span id='badge_#=ProductID#' class='badgeTemplate'></span>",
+                            width: 130,
+                        }, {
+                            field: "Category.CategoryName",
+                            title: "Category",
+                            editor: clientCategoryEditor,
+                            groupHeaderTemplate: "Category: #=data.value#, Total Sales: #=kendo.format('{0:c}', aggregates.TotalSales.sum)#",
+                            width: 125
+                        }, {
+                            field: "CustomerRating",
+                            title: "Rating",
+                            template: "<input id='rating_#=ProductID#' data-bind='value: CustomerRating' class='rating'/>",
+                            editable: returnFalse,
+                            width: 200
+                        }, {
+                            field: "Country.CountryNameLong",
+                            title: "Country",
+                            template: "<div class='k-text-center'><img src='../content/web/country-flags/#:data.Country.CountryNameShort#.png' alt='Kendo UI for jQuery Grid #: data.Country.CountryNameLong# Flag' title='#: data.Country.CountryNameLong#' width='30' /></div>",
+                            editor: clientCountryEditor,
+                            width: 120
+                        }, {
+                            field: "UnitsInStock",
+                            title: "Units",
+                            width: 105
+                        }, {
+                            field: "TotalSales",
+                            title: "Total Sales",
+                            format: "{0:c}",
+                            width: 140,
+                            aggregates: ["sum"],
+                        }, {
+                            field: "TargetSales",
+                            title: "Target Sales",
+                            format: "{0:c}",
+                            template: "<span id='chart_#= ProductID#' class='sparkline-chart'></span>",
+                            width: 220
+                        },
+                        { command: "destroy", title: "&amp;nbsp;", width: 120 }],
+                    });
+                });
+
+                function onDataBound(e) {
+                    var grid = this;
+                    grid.table.find("tr").each(function () {
+                        var dataItem = grid.dataItem(this);
+                        var themeColor = dataItem.Discontinued ? 'success' : 'error';
+                        var text = dataItem.Discontinued ? 'available' : 'not available';
+
+                        $(this).find(".badgeTemplate").kendoBadge({
+                            themeColor: themeColor,
+                            text: text,
+                        });
+
+                        $(this).find(".rating").kendoRating({
+                            min: 1,
+                            max: 5,
+                            label: false,
+                            value: dataItem.CustomerRating,
+                            selection: "continuous"
+                        });
+
+                        $(this).find(".sparkline-chart").kendoSparkline({
+                            legend: {
+                                visible: false
+                            },
+                            data: [dataItem.TargetSales],
+                            type: "bar",
+                            chartArea: {
+                                margin: 0,
+                                width: 180,
+                                background: "transparent"
+                            },
+                            seriesDefaults: {
+                                labels: {
+                                    visible: true,
+                                    format: '{0}%',
+                                    background: 'none'
+                                }
+                            },
+                            categoryAxis: {
+                                majorGridLines: {
+                                    visible: false
+                                },
+                                majorTicks: {
+                                    visible: false
+                                }
+                            },
+                            valueAxis: {
+                                type: "numeric",
+                                min: 0,
+                                max: 130,
+                                visible: false,
+                                labels: {
+                                    visible: false
+                                },
+                                minorTicks: { visible: false },
+                                majorGridLines: { visible: false }
+                            },
+                            tooltip: {
+                                visible: false
+                            }
+                        });
+
+                        kendo.bind($(this), dataItem);
+                    });
+                }
+
+                function returnFalse() {
+                    return false;
+                }
+
+                function clientCategoryEditor(container, options) {
+                    $('<input required name="Category">')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            autoBind: false,
+                            dataTextField: "CategoryName",
+                            dataValueField: "CategoryID",
+                            dataSource: {
+                                data: categories
+                            }
+                        });
+                }
+
+                function clientCountryEditor(container, options) {
+                    $('<input required name="Country">')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "CountryNameLong",
+                            dataValueField: "CountryNameShort",
+                            template: "<div class='dropdown-country-wrap'><img src='../content/web/country-flags/#:CountryNameShort#.png' alt='Kendo UI for jQuery Grid #: CountryNameLong# Flag' title='#: CountryNameLong#' width='30' /><span>#:CountryNameLong #</span></div>",
+                            dataSource: {
+                                transport: {
+                                    read: {
+                                        url: " https://demos.telerik.com/kendo-ui/service/countries",
+                                        dataType: "jsonp"
+                                    }
+                                }
+                            },
+                            autoWidth: true
+                        });
+                }
+
+                var categories = [{
+                    "CategoryID": 1,
+                    "CategoryName": "Beverages"
+                }, {
+                    "CategoryID": 2,
+                    "CategoryName": "Condiments"
+                }, {
+                    "CategoryID": 3,
+                    "CategoryName": "Confections"
+                }, {
+                    "CategoryID": 4,
+                    "CategoryName": "Dairy Products"
+                }, {
+                    "CategoryID": 5,
+                    "CategoryName": "Grains/Cereals"
+                }, {
+                    "CategoryID": 6,
+                    "CategoryName": "Meat/Poultry"
+                }, {
+                    "CategoryID": 7,
+                    "CategoryName": "Produce"
+                }, {
+                    "CategoryID": 8,
+                    "CategoryName": "Seafood"
+                }];
+            </script>
+
+            <style type="text/css">
+                .k-pdf-export .k-clone,
+                .k-pdf-export .k-loader-container {
+                    display: none;
+                }
+
+                .customer-photo {
+                    display: inline-block;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    background-size: 32px 35px;
+                    background-position: center center;
+                    vertical-align: middle;
+                    line-height: 32px;
+                    box-shadow: inset 0 0 1px #999, inset 0 0 10px rgba(0,0,0,.2);
+                    margin-left: 5px;
+                }
+
+                .customer-name {
+                    display: inline-block;
+                    vertical-align: middle;
+                    line-height: 32px;
+                    padding-left: 3px;
+                }
+
+                .k-grid tr .checkbox-align {
+                    text-align: center;
+                    vertical-align: middle;
+                }
+
+                .product-photo {
+                    display: inline-block;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    background-size: 32px 35px;
+                    background-position: center center;
+                    vertical-align: middle;
+                    line-height: 32px;
+                    box-shadow: inset 0 0 1px #999, inset 0 0 10px rgba(0,0,0,.2);
+                    margin-right: 5px;
+                }
+
+                .product-name {
+                    display: inline-block;
+                    vertical-align: middle;
+                    line-height: 32px;
+                    padding-left: 3px;
+                }
+
+                .k-rating-container .k-rating-item {
+                    padding: 4px 0;
+                }
+
+                    .k-rating-container .k-rating-item .k-icon {
+                        font-size: 16px;
+                    }
+
+                .dropdown-country-wrap {
+                    display: flex;
+                    flex-wrap: nowrap;
+                    align-items: center;
+                    white-space: nowrap;
+                }
+
+                    .dropdown-country-wrap img {
+                        margin-right: 10px;
+                    }
+
+                #grid .k-grid-edit-row > td > .k-rating {
+                    margin-left: 0;
+                    width: 100%;
+                }
+            </style>
+        </div>-->
+
+
+</body>
+</html>

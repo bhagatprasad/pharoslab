@@ -69,9 +69,7 @@
                 disableAllButtons();
 
                 // Enable buttons based on selection
-                if (self.selectedRows.length > 0) {
-                    enableButtons();
-                }
+                enableButtons();
 
                 // Update the current selected lab test
                 if (self.selectedRows.length === 1) {
@@ -87,7 +85,7 @@
         });
         function disableAllButtons() {
             $(".custom-cursor").addClass("disabled");
-            $("#addBtn").addClass("disabled");
+            $("#addBtn").removeClass("disabled");
             $("#editBtn").addClass("disabled");
             $("#deleteBtn").addClass("disabled");
             $("#copyBtn").addClass("disabled");
@@ -189,6 +187,18 @@
             console.log(userRegistration);
             self.addeditUser(userRegistration);
         });
+        $(document).on("click", "#editBtn", function () {
+            if (self.currectSelectedUser) {
+                $("#Name").val(self.currectSelectedUser.Name);
+                $("#Code").val(self.currectSelectedUser.Code);
+                $('#sidebar').addClass('show');
+                $('body').append('<div class="modal-backdrop fade show"></div>');
+            } else {
+                $('#sidebar').removeClass('show');
+                $('.modal-backdrop').remove();
+            }
+
+        });
         self.addeditUser = function (userRegistration) {
             makeAjaxRequest({
                 url: '/User/InsertOrUpdateUser',
@@ -211,5 +221,37 @@
         };
 
     };
+    function makeAjaxRequest({
+        url,
+        data = {},
+        type = 'GET',
+        contentType = 'application/json; charset=utf-8',
+        dataType = 'json',
+        processData = true,
+        cache = false,
+        headers = {},
+        successCallback = function (response) { console.log(response); },
+        errorCallback = function (xhr, status, error) { console.error(`Error: ${error}`); }
+    }) {
+        const BASE_API_URL = 'http://localhost:5265/api';
+        const baseUrl = `${BASE_API_URL}${url}`;
+        const token = storageService.get('AccessToken');
 
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        $.ajax({
+            url: baseUrl,
+            data: type === 'GET' ? data : JSON.stringify(data),
+            type: type,
+            contentType: contentType,
+            dataType: dataType,
+            processData: processData,
+            cache: cache,
+            headers: headers,
+            success: successCallback,
+            error: errorCallback
+        });
+    }
 }

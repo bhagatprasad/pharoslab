@@ -2,6 +2,11 @@
 {
     public class UserInfirmation
     {
+        public UserInfirmation()
+        {
+            userHobbies = new List<UserHobbies>();
+            userProfessionals = new List<UserProfessional>();
+        }
         public Guid? Id { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
@@ -15,5 +20,7 @@
         public Guid? ModifiedBy { get; set; }
         public DateTimeOffset? ModifiedOn { get; set; }
         public bool IsActive { get; set; }
+        public List<UserHobbies> userHobbies { get; set; }
+        public List<UserProfessional> userProfessionals { get; set; }
     }
 }

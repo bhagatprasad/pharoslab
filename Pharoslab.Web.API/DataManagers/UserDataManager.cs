@@ -84,7 +84,7 @@ namespace Pharoslab.Web.API.DataManagers
                 var pharoslabHashSalt = PharoslabHashSalt.GenerateSaltedHash(userRegistration.Password);
                 dbUser.PasswordHash = pharoslabHashSalt.Hash;
                 dbUser.PasswordSalt = pharoslabHashSalt.Salt;
-                dbUser.Id = Guid.NewGuid(); 
+                dbUser.Id = Guid.NewGuid();
             }
             else
             {
@@ -102,6 +102,8 @@ namespace Pharoslab.Web.API.DataManagers
 
         private UserInfirmation MapToUserInfirmation(User dbUser)
         {
+            var professionalDetails = _dbContext.userProfessionals.Where(x => x.UserId == dbUser.Id && x.IsActive == true).ToList();
+            var userHobbies = _dbContext.userHobbies.Where(x => x.UserId == dbUser.Id && x.IsActive == true).ToList();
             return new UserInfirmation
             {
                 Id = dbUser.Id,
@@ -116,8 +118,79 @@ namespace Pharoslab.Web.API.DataManagers
                 CreatedOn = dbUser.CreatedOn,
                 ModifiedBy = dbUser.ModifiedBy,
                 ModifiedOn = dbUser.ModifiedOn,
-                IsActive = dbUser.IsActive ?? false
+                IsActive = dbUser.IsActive ?? false,
+                userProfessionals = professionalDetails.Any() ? professionalDetails : new List<UserProfessional>(),
+                userHobbies = userHobbies.Any() ? userHobbies : new List<UserHobbies>()
             };
+        }
+
+        public async Task<List<UserProfessional>> InsertOrUpdateUserProfessionalAsync(UserProfessional userProfessional)
+        {
+            List<UserProfessional> userProfessionals = new List<UserProfessional>();
+            if (userProfessional.UserProfessionalId == Guid.Empty || userProfessional.UserProfessionalId != null)
+            {
+                await _dbContext.userProfessionals.AddAsync(userProfessional);
+            }
+            else
+            {
+                var existingUser = await _dbContext.userProfessionals.FindAsync(userProfessional.UserProfessionalId);
+                if (existingUser != null)
+                {
+                    bool hasChanges = EntityUpdater.HasChanges(existingUser, userProfessional, nameof(UserProfessional.CreatedBy), nameof(UserProfessional.CreatedOn));
+                    if (hasChanges)
+                    {
+                        EntityUpdater.UpdateProperties(existingUser, userProfessional, nameof(UserProfessional.CreatedBy), nameof(UserProfessional.CreatedOn));
+                    }
+                }
+                else
+                {
+                    await _dbContext.userProfessionals.AddAsync(userProfessional);
+                }
+            }
+
+            await _dbContext.SaveChangesAsync();
+
+            userProfessionals = await _dbContext.userProfessionals.Where(x => x.UserId == userProfessional.UserId && x.IsActive == true).ToListAsync();
+            return userProfessionals;
+        }
+
+        public async Task<List<UserProfessional>> FetchUserProfessionalsAsync(Guid userId)
+        {
+            return await _dbContext.userProfessionals.Where(x => x.UserId == userId && x.IsActive == true).ToListAsync();
+        }
+
+        public async Task<List<UserHobbies>> InsertOrUpdateUserHobbiesAsync(UserHobbies userHobbies)
+        {
+            if (userHobbies.UserHobbyId == Guid.Empty)
+            {
+                await _dbContext.userHobbies.AddAsync(userHobbies);
+            }
+            else
+            {
+                var existingUserHobby = await _dbContext.userHobbies.FindAsync(userHobbies.UserHobbyId);
+
+                if (existingUserHobby != null)
+                {
+                    bool hasChanges = EntityUpdater.HasChanges(existingUserHobby, userHobbies, nameof(UserHobbies.CreatedBy), nameof(UserHobbies.CreatedOn));
+                    if (hasChanges)
+                    {
+                        EntityUpdater.UpdateProperties(existingUserHobby, userHobbies, nameof(UserHobbies.CreatedBy), nameof(UserHobbies.CreatedOn));
+                    }
+                }
+                else
+                {
+                    await _dbContext.userHobbies.AddAsync(userHobbies);
+                }
+            }
+
+            await _dbContext.SaveChangesAsync();
+
+            return await _dbContext.userHobbies.Where(x => x.UserId == userHobbies.UserId && x.IsActive == true).ToListAsync();
+        }
+
+        public async Task<List<UserHobbies>> FetchUserUserHobbiessAsync(Guid userId)
+        {
+            return await _dbContext.userHobbies.Where(x => x.UserId == userId && x.IsActive == true).ToListAsync();
         }
     }
 }

@@ -16,5 +16,8 @@ namespace Pharoslab.Web.API.DBConfiguration
         }
         public DbSet<User> users { get; set; }
 
+        public DbSet<UserHobbies> userHobbies { get; set; }
+        public DbSet<UserProfessional> userProfessionals { get; set; }
+
     }
 }

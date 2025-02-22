@@ -11,6 +11,7 @@
         if (appuser) {
             self.ApplicationUser = appuser;
         }
+
         $("#UserGrid").kendoGrid({
             dataSource: {
                 transport: {
@@ -20,6 +21,7 @@
                     }
                 },
                 pageSize: 50,
+                selectable: "multiple, row",
                 schema: {
                     model: {
                         fields: {
@@ -61,28 +63,20 @@
                     return grid.dataItem(row);
                 });
 
-                // Check if all rows are selected
                 var allSelected = selectedRows.length && selectedRows.length === grid.items().length;
                 $('#parentUserChkbox').prop('checked', allSelected);
 
-                // Disable all buttons initially
                 disableAllButtons();
-
-                // Enable buttons based on selection
                 enableButtons();
 
-                // Update the current selected lab test
                 if (self.selectedRows.length === 1) {
                     self.currectSelectedUser = self.selectedRows[0];
                 } else {
                     self.currectSelectedUser = {};
                 }
-
-                console.log("Selected Rows:", self.selectedRows);
-                console.log("Current Selected Lab Test:", self.currectSelectedUser);
-
             }
         });
+
         function disableAllButtons() {
             $(".custom-cursor").addClass("disabled");
             $("#addBtn").removeClass("disabled");
@@ -93,62 +87,89 @@
 
         function enableButtons() {
             $(".custom-cursor").removeClass("disabled");
-
-            // Get the selected rows from the Kendo Grid
             var selectedRows = $("#UserGrid").data("kendoGrid").select();
             var hasMultipleSelection = selectedRows.length > 1;
 
             if (hasMultipleSelection) {
-                // Disable edit, delete, and copy buttons when multiple rows are selected
                 $("#editBtn").addClass("disabled");
                 $("#deleteBtn").addClass("disabled");
                 $("#copyBtn").addClass("disabled");
-                $("#addBtn").removeClass("disabled"); // Allow adding new items
+                $("#addBtn").removeClass("disabled");
             } else if (selectedRows.length === 1) {
-                // Enable edit, delete, and copy buttons when one row is selected
                 $("#editBtn").removeClass("disabled");
                 $("#deleteBtn").removeClass("disabled");
                 $("#copyBtn").removeClass("disabled");
-                $("#addBtn").addClass("disabled"); // Disable adding new items when editing
+                $("#addBtn").addClass("disabled");
             } else {
-                // No rows selected
                 disableAllButtons();
             }
         }
 
-        // Handle parent checkbox change
         $(document).on("change", "#parentUserChkbox", function () {
             var isChecked = $(this).is(":checked");
             $(".childUserChkbox").prop("checked", isChecked);
+
+            var grid = $("#UserGrid").data("kendoGrid");
+
+
+            grid.items().removeClass("k-selected");
+
             if (isChecked) {
-                $("#UserGrid").data("kendoGrid").select($("#UserGrid").data("kendoGrid").items());
+
+                grid.items().each(function () {
+                    grid.select(this);
+                });
             } else {
-                $("#UserGrid").data("kendoGrid").clearSelection();
+                grid.clearSelection();
             }
+            updateSelectedRows();
         });
 
-        // Handle child checkbox change
         $(document).on("change", ".childUserChkbox", function () {
+            var grid = $("#UserGrid").data("kendoGrid");
             var row = $(this).closest("tr");
+
             if ($(this).is(":checked")) {
-                $("#UserGrid").data("kendoGrid").select(row);
+                grid.select(row);
             } else {
-                $("#UserGrid").data("kendoGrid").clearSelection(row);
+                $(row).removeClass("k-selected");
+
+                $(row).find(".k-checkbox").removeClass("k-checkbox-selected");
+
+                var dataItem = grid.dataItem(row);
+                grid.clearSelection(dataItem);
+
+                self.selectedRows = self.selectedRows.filter(function (item) {
+                    return item.uid !== dataItem.uid;
+                });
             }
 
-            // Check if all child checkboxes are checked
-            var allRows = $("#UserGrid").data("kendoGrid").items();
-            var allChecked = true;
+            var allChecked = $(".childUserChkbox").length === $(".childUserChkbox:checked").length;
+            $("#parentUserChkbox").prop("checked", allChecked)
 
-            allRows.each(function () {
-                var checkbox = $(this).find(".childUserChkbox");
-                if (!checkbox.is(":checked")) {
-                    allChecked = false;
-                }
+            updateSelectedRows();
+        });
+
+        function updateSelectedRows() {
+            var grid = $("#UserGrid").data("kendoGrid");
+            var selectedRows = grid.select().toArray();
+
+            var selectedUids = selectedRows.map(function (row) {
+                return $(row).data("uid");
             });
 
-            $("#parentUserChkbox").prop("checked", allChecked);
-        });
+            self.selectedRows = grid._data.filter(function (dataItem) {
+                return selectedUids.includes(dataItem.uid);
+            });
+
+            var allSelected = self.selectedRows.length > 0 && self.selectedRows.length === grid.items().length;
+            $("#parentUserChkbox").prop("checked", allSelected);
+
+            disableAllButtons();
+            enableButtons();
+
+            self.currectSelectedUser = self.selectedRows.length === 1 ? self.selectedRows[0] : {};
+        }
 
         makeFormGeneric('#AddEditUserForm', '#btnsubmit');
 
@@ -168,6 +189,8 @@
             }
         }
         $(document).on("click", "#addBtn", function () {
+            $("#editpasswordhandle").removeClass("showHide");
+            $("#Password").attr("required", "required");
             $('#sidebar').addClass('show');
             $('body').append('<div class="modal-backdrop fade show"></div>');
         });
@@ -179,18 +202,30 @@
         $('#AddEditUserForm').on('submit', function (e) {
             e.preventDefault();
             showLoader();
-            var formData = getFormData('#AddEditUserForm');
+            var formData = {
+                FirstName: $("#FirstName").val(),
+                LastName: $("#LastName").val(),
+                Email: $("#Email").val(),
+                Phone: $("#Phone").val()
+            };
+            if (Object.keys(self.currectSelectedUser).length === 0 || !self.currectSelectedUser.id) {
+                formData.Password = $("#Password").val();
+            }
             var userRegistration = addCommonProperties(formData);
             userRegistration.LastPasswordChangedOn = new Date();
             userRegistration.IsBlocked = false;
-            userRegistration.Id = null;
+            userRegistration.Id = self.currectSelectedUser && self.currectSelectedUser.id ? self.currectSelectedUser.id : null;
             console.log(userRegistration);
             self.addeditUser(userRegistration);
         });
         $(document).on("click", "#editBtn", function () {
             if (self.currectSelectedUser) {
-                $("#Name").val(self.currectSelectedUser.Name);
-                $("#Code").val(self.currectSelectedUser.Code);
+                $("#FirstName").val(self.currectSelectedUser.firstName);
+                $("#LastName").val(self.currectSelectedUser.lastName);
+                $("#Email").val(self.currectSelectedUser.email);
+                $("#Phone").val(self.currectSelectedUser.phone);
+                $("#Password").removeAttr("required");
+                $("#editpasswordhandle").addClass("showHide");
                 $('#sidebar').addClass('show');
                 $('body').append('<div class="modal-backdrop fade show"></div>');
             } else {
@@ -201,7 +236,7 @@
         });
         self.addeditUser = function (userRegistration) {
             makeAjaxRequest({
-                url: '/User/InsertOrUpdateUser',
+                url: '/User/InsertOrUpdateUserAsync',
                 data: userRegistration,
                 type: 'POST',
                 successCallback: function (response) {
@@ -209,7 +244,8 @@
                         $('#AddEditUserForm')[0].reset();
                         $('#sidebar').removeClass('show');
                         $('.modal-backdrop').remove();
-                        self.usersgrid.setData();
+                        var grid = $("#UserGrid").data("kendoGrid");
+                        grid.dataSource.read();
                     }
                     console.info(response);
                     hideLoader();
@@ -221,6 +257,48 @@
         };
 
     };
+    $(document).on("click", ".toggle-password", function () {
+        var inputField = $(this).closest('.input-group').find('.form-control');
+        var icon = $(this).find('i');
+
+        if (inputField.attr('type') === 'password') {
+            inputField.attr('type', 'text');
+            icon.removeClass('fa-eye-slash').addClass('fa-eye');
+        } else {
+            inputField.attr('type', 'password');
+            icon.removeClass('fa-eye').addClass('fa-eye-slash');
+        }
+    });
+    function showLoader() {
+        $('#overlay').attr('style', 'display:grid');
+        $('#overlay').show();
+    }
+
+    function hideLoader() {
+        $('#overlay').attr('style', 'display:none');
+        $('#overlay').hide();
+    }
+    function getFormData(formSelector) {
+        var formData = {};
+        $(formSelector).find('input, select, textarea').each(function () {
+            var id = $(this).attr('id');
+            if (id) {
+                formData[id] = $(this).val();
+            }
+        });
+        return formData;
+    }
+
+    function addCommonProperties(data) {
+        var appuser = storageService.get("ApplicationUser");
+        var userId = appuser ? appuser.Id : null;
+        data.CreatedOn = new Date();
+        data.CreatedBy = userId;
+        data.ModifiedOn = new Date();
+        data.ModifiedBy = userId;
+        data.IsActive = true;
+        return data;
+    }
     function makeAjaxRequest({
         url,
         data = {},
@@ -231,14 +309,14 @@
         cache = false,
         headers = {},
         successCallback = function (response) { console.log(response); },
-        errorCallback = function (xhr, status, error) { console.error(`Error: ${error}`); }
+        errorCallback = function (xhr, status, error) { console.error(`Error: ${error} `); }
     }) {
         const BASE_API_URL = 'http://localhost:5265/api';
-        const baseUrl = `${BASE_API_URL}${url}`;
+        const baseUrl = `${BASE_API_URL}${url} `;
         const token = storageService.get('AccessToken');
 
         if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
+            headers['Authorization'] = `Bearer ${token} `;
         }
 
         $.ajax({

@@ -2,7 +2,7 @@
     var self = this;
     self.ApplicationUser = {};
     self.selectedRows = [];
-
+    self.UserProfessionalInfo = [];
     self.currectSelectedUser = {};
     self.init = function () {
         //  kendo.ui.licensing.setLicenseKey("NONE");
@@ -189,6 +189,10 @@
             }
         }
         $(document).on("click", "#addBtn", function () {
+            $("#professional-tab").addClass("disabled").attr("aria-disabled", "true");
+            $("#hobbies-tab").addClass("disabled").attr("aria-disabled", "true");
+
+            // Other actions
             $("#editpasswordhandle").removeClass("showHide");
             $("#Password").attr("required", "required");
             $('#sidebar').addClass('show');
@@ -224,15 +228,25 @@
                 $("#LastName").val(self.currectSelectedUser.lastName);
                 $("#Email").val(self.currectSelectedUser.email);
                 $("#Phone").val(self.currectSelectedUser.phone);
+
+                $("#professional-tab").removeClass("disabled").attr("aria-disabled", "false");
+                $("#hobbies-tab").removeClass("disabled").attr("aria-disabled", "false");
+
+               
                 $("#Password").removeAttr("required");
+
                 $("#editpasswordhandle").addClass("showHide");
+
+                self.PrepareUserProfessionalInformationUI();
+
+                self.PrepareUserHobbiesInformationUI();
+
                 $('#sidebar').addClass('show');
                 $('body').append('<div class="modal-backdrop fade show"></div>');
             } else {
                 $('#sidebar').removeClass('show');
                 $('.modal-backdrop').remove();
             }
-
         });
         self.addeditUser = function (userRegistration) {
             makeAjaxRequest({
@@ -256,6 +270,154 @@
             });
         };
 
+    };
+    $(document).on("click", "#addProfessional", function () {
+        if (self.currectSelectedUser) {
+            var jobTitle = $("#JobTitle").val();
+            var company = $("#Company").val();
+            var professional = {
+                UserProfessionalId: null,
+                UserId: self.currectSelectedUser.id,
+                JobTitle: jobTitle,
+                Company: company
+            };
+            var userProfessional = addCommonProperties(professional);
+            self.InsertOrUpdateUserProfessionalAsync(userProfessional);
+        }
+    });
+    self.PrepareUserHobbiesInformationUI = function () {
+        var hobbiesGrid = $("#pillsContainer");
+        hobbiesGrid.html("");
+
+        if (self.currectSelectedUser.userHobbies) {
+            self.currectSelectedUser.userHobbies.forEach(function (item) {
+                var trRow = $("<tr></tr>");
+
+                // Hobby column
+                trRow.append($("<td></td>").text(item.hobby || 'N/A'));
+
+                // Actions column
+                var actionsCell = $("<td class='text-center'></td>");
+                var deleteLink = $("<a href='#' class='link-primary link-delete link-delete-hobby' data-userHobbyId='" + item.userHobbyId + "'><i class='fa fa-trash' style='color: red;' data-userHobbyId='" + item.userHobbyId + "'></i></a>");
+
+                actionsCell.append(deleteLink);
+                trRow.append(actionsCell);
+
+                hobbiesGrid.append(trRow);
+            });
+        }
+    };
+    $(document).on("change", "#Hobby", function () {
+        var selectedValue = $(this).val();
+        if (selectedValue) {
+            var hobbyInformation = {
+                UserHobbyId: null,
+                Hobby: selectedValue,
+                UserId: self.currectSelectedUser.id
+            };
+            var _hobbyInformation = addCommonProperties(hobbyInformation);
+            self.InsertOrUpdateUserHobbiesAsync(_hobbyInformation);
+        }
+    });
+    self.InsertOrUpdateUserHobbiesAsync = function (hobby) {
+        showLoader();
+        makeAjaxRequest({
+            url: "/User/InsertOrUpdateUserHobbiesAsync",
+            data: hobby,
+            type: 'POST',
+            successCallback: function (response) {
+                self.currectSelectedUser.userHobbies = response ? response : [];
+                $("#Hobby").prop("selectedIndex", 0);
+                self.PrepareUserHobbiesInformationUI();
+                console.info(response);
+                hideLoader();
+            },
+            errorCallback: function (xhr, status, error) {
+                console.error("Error in upserting data to server: " + error);
+                hideLoader();
+            }
+        });
+    }
+    self.PrepareUserProfessionalInformationUI = function () {
+        var professionalsGrid = $("#ProfessionalsGrid");
+        professionalsGrid.html("");
+
+        if (self.currectSelectedUser.userProfessionals) {
+            self.currectSelectedUser.userProfessionals.forEach(function (item) {
+                var trRow = $("<tr></tr>");
+                trRow.append($("<td></td>").text(item.jobTitle || 'N/A'));
+                trRow.append($("<td></td>").text(item.company || 'N/A')); 
+
+                var actionsCell = $("<td class='text-center'></td>");
+                var deleteLink = $("<a href='#' class='link-primary link-delete link-delete-contact' data-userProfessionalId='" + item.userProfessionalId + "'><i class='fa fa-trash' style='color: red;' data-userProfessionalId='" + item.userProfessionalId + "'></i></a>");
+                actionsCell.append(deleteLink);
+
+                trRow.append(actionsCell);
+
+                professionalsGrid.append(trRow);
+            });
+        }
+    }
+    $(document).on("click", ".link-delete-hobby", function (e) {
+        e.preventDefault();
+
+        var userHobbyId = $(this).data("userhobbyid");
+
+        var userHobbyDeleteItem = self.currectSelectedUser.userHobbies.filter(x => x.userHobbyId === userHobbyId)[0];
+
+        if (userHobbyDeleteItem) {
+            if (confirm("Are you sure you want to delete this Hobby?")) {
+                console.log(userHobbyDeleteItem);
+                userHobbyDeleteItem.isActive = false;
+                userHobbyDeleteItem.modifiedBy = self.ApplicationUser.id;
+                userHobbyDeleteItem.modifiedOn = new Date();
+                self.InsertOrUpdateUserHobbiesAsync(userHobbyDeleteItem);
+            }
+        } else {
+            alert("Hobby not found.");
+        }
+    });
+    $(document).on("click", ".link-delete-contact", function (e) {
+        e.preventDefault();
+
+        var userProfessionalId = $(this).data("userprofessionalid");
+
+        var userProfessionalDeleteItem = self.currectSelectedUser.userProfessionals.filter(x => x.userProfessionalId === userProfessionalId)[0];
+
+        if (userProfessionalDeleteItem) {
+            if (confirm("Are you sure you want to delete this Prefession?")) {
+                console.log(userProfessionalDeleteItem);
+                userProfessionalDeleteItem.isActive = false;
+                userProfessionalDeleteItem.modifiedBy = self.ApplicationUser.id;
+                userProfessionalDeleteItem.modifiedOn = new Date();
+                self.InsertOrUpdateUserProfessionalAsync(userProfessionalDeleteItem);
+            }
+        } else {
+            alert("Prefession not found.");
+        }
+    });
+    self.InsertOrUpdateUserProfessionalAsync = function (userProfessional) {
+        showLoader();
+        makeAjaxRequest({
+            url: "/User/InsertOrUpdateUserProfessionalAsync",
+            data: userProfessional,
+            type: 'POST',
+            successCallback: function (response) {
+                self.UserProfessionalInfo = response ? response : [];
+                self.currectSelectedUser.userProfessionals = self.UserProfessionalInfo;
+                var professionalsGrid = $("#ProfessionalsGrid");
+                professionalsGrid.html("");
+                $("#JobTitle").prop("selectedIndex", 0);
+                $("#Company").val("");
+                self.PrepareUserProfessionalInformationUI();
+                console.info(response);
+                hideLoader();
+            },
+            errorCallback: function (xhr, status, error) {
+                console.error("Error in upserting data to server: " + error);
+                hideLoader();
+            }
+        });
     };
     $(document).on("click", ".toggle-password", function () {
         var inputField = $(this).closest('.input-group').find('.form-control');
@@ -291,7 +453,7 @@
 
     function addCommonProperties(data) {
         var appuser = storageService.get("ApplicationUser");
-        var userId = appuser ? appuser.Id : null;
+        var userId = appuser ? appuser.id : null;
         data.CreatedOn = new Date();
         data.CreatedBy = userId;
         data.ModifiedOn = new Date();

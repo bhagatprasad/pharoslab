@@ -34,6 +34,10 @@
         .showHide {
             display: none !important;
         }
+        .nav-link.disabled {
+            pointer-events: none; /* Prevent clicks */
+            opacity: 0.5; /* Make it look disabled */
+        }
     </style>
     <title>Home</title>
     <meta charset="utf-8">
@@ -321,56 +325,115 @@
 
                                 <!-- Professional Info Tab -->
                                 <div class="tab-pane fade" id="professional" role="tabpanel" aria-labelledby="professional-tab">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="JobTitle">Job Title</label>
-                                                <div class="input-group">
-                                                    <div class="input-group-prepend">
-                                                        <span class="input-group-text"><i class="fa fa-briefcase"></i></span>
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <!-- Job Title Field -->
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label for="JobTitle">Job Title</label> <!-- Added label for accessibility -->
+                                                        <div class="input-group">
+                                                            <div class="input-group-prepend">
+                                                                <span class="input-group-text"><i class="fa fa-user-clock"></i></span>
+                                                            </div>
+                                                            <select id="JobTitle" class="form-control custom-select" autofocus required>
+                                                                <option value="" disabled selected>Select a job title</option> <!-- Placeholder option -->
+                                                                <option value="Software Engineer">Software Engineer</option>
+                                                                <option value="Product Manager">Product Manager</option>
+                                                                <option value="Data Scientist">Data Scientist</option>
+                                                                <option value="UX Designer">UX Designer</option>
+                                                                <option value="Marketing Manager">Marketing Manager</option>
+                                                                <option value="Sales Representative">Sales Representative</option>
+                                                                <option value="Financial Analyst">Financial Analyst</option>
+                                                                <option value="Human Resources Manager">Human Resources Manager</option>
+                                                                <option value="Project Manager">Project Manager</option>
+                                                                <option value="Customer Support Specialist">Customer Support Specialist</option>
+                                                            </select>
+                                                        </div>
                                                     </div>
-                                                    <input type="text" class="form-control" id="JobTitle" placeholder="Enter job title" />
+                                                </div>
+
+                                                <!-- Company Field -->
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label for="Company">Company</label>
+                                                        <div class="input-group">
+                                                            <div class="input-group-prepend">
+                                                                <span class="input-group-text"><i class="fa fa-building"></i></span>
+                                                            </div>
+                                                            <input type="text" class="form-control" id="Company" placeholder="Enter company name" required />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Add Button -->
+                                                <div class="col-md-4" style="margin-top: 27px;">
+                                                    <!-- Align button to the bottom -->
+                                                    <button type="button" id="addProfessional" class="btn btn-primary w-100">Add</button>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="Company">Company</label>
-                                                <div class="input-group">
-                                                    <div class="input-group-prepend">
-                                                        <span class="input-group-text"><i class="fa fa-building"></i></span>
-                                                    </div>
-                                                    <input type="text" class="form-control" id="Company" placeholder="Enter company name" />
-                                                </div>
+                                            <div class="row">
+                                                <table class="table table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">JobTitle</th>
+                                                            <th scope="col">Company</th>
+                                                            <th scope="col">Actions</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="ProfessionalsGrid">
+                                                    </tbody>
+                                                </table>
                                             </div>
+
                                         </div>
                                     </div>
+                                   
                                 </div>
 
                                 <!-- Hobbies Tab -->
                                 <div class="tab-pane fade" id="hobbies" role="tabpanel" aria-labelledby="hobbies-tab">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="Hobby1">Hobby 1</label>
-                                                <div class="input-group">
-                                                    <div class="input-group-prepend">
-                                                        <span class="input-group-text"><i class="fa fa-heart"></i></span>
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <!-- Job Title Field -->
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <label for="Hobby">Hobby</label>
+                                                        <div class="input-group">
+                                                            <div class="input-group-prepend">
+                                                                <span class="input-group-text"><i class="fa fa-user-clock"></i></span>
+                                                            </div>
+                                                            <select id="Hobby" class="form-control custom-select" autofocus required>
+                                                                <option value="" disabled selected>Select a hobby</option> <!-- Corrected placeholder -->
+                                                                <option value="Reading">Reading</option>
+                                                                <option value="Traveling">Traveling</option>
+                                                                <option value="Cooking">Cooking</option>
+                                                                <option value="Photography">Photography</option>
+                                                                <option value="Gaming">Gaming</option>
+                                                                <option value="Sports">Sports</option>
+                                                                <option value="Music">Music</option>
+                                                                <option value="Painting">Painting</option>
+                                                                <option value="Gardening">Gardening</option>
+                                                                <option value="Hiking">Hiking</option>
+                                                            </select>
+                                                        </div>
                                                     </div>
-                                                    <input type="text" class="form-control" id="Hobby1" placeholder="Enter hobby" />
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="Hobby2">Hobby 2</label>
-                                                <div class="input-group">
-                                                    <div class="input-group-prepend">
-                                                        <span class="input-group-text"><i class="fa fa-heart"></i></span>
-                                                    </div>
-                                                    <input type="text" class="form-control" id="Hobby2" placeholder="Enter hobby" />
-                                                </div>
+                                            <div class="row">
+                                                <table class="table table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">Hobby</th>
+                                                            <th scope="col">Actions</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="pillsContainer">
+                                                    </tbody>
+                                                </table>
                                             </div>
+
                                         </div>
                                     </div>
                                 </div>

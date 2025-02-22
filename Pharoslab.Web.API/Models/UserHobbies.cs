@@ -9,8 +9,7 @@ namespace Pharoslab.Web.API.Models
         [Key]
         public Guid UserHobbyId { get; set; } 
         public Guid? UserId { get; set; } 
-        public string? JobTitle { get; set; }
-        public string? Company { get; set; }  
+        public string? Hobby { get; set; }
         public Guid? CreatedBy { get; set; }  
         public DateTimeOffset? CreatedOn { get; set; } 
         public Guid? ModifiedBy { get; set; }  

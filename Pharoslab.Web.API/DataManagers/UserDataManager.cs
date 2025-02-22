@@ -127,7 +127,7 @@ namespace Pharoslab.Web.API.DataManagers
         public async Task<List<UserProfessional>> InsertOrUpdateUserProfessionalAsync(UserProfessional userProfessional)
         {
             List<UserProfessional> userProfessionals = new List<UserProfessional>();
-            if (userProfessional.UserProfessionalId == Guid.Empty || userProfessional.UserProfessionalId != null)
+            if (userProfessional.UserProfessionalId == Guid.Empty || userProfessional.UserProfessionalId == null)
             {
                 await _dbContext.userProfessionals.AddAsync(userProfessional);
             }

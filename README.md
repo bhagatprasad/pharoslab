@@ -34,3 +34,39 @@ to add new user you can click on plus icon to create a new user like below
 
 
 add user details and submit 
+
+In order to edit select one of the user check box w.r.t of user in grid edit icon will poplate 
+
+like below 
+![image](https://github.com/user-attachments/assets/9e143162-d273-400e-ae83-420f348b9b79)
+
+
+and click on edit icon then slider will open like belwo 
+![image](https://github.com/user-attachments/assets/6a497dd2-d2e1-431b-a64b-82babca0577f)
+![image](https://github.com/user-attachments/assets/0db01cdc-928a-4089-bd01-aa2a082f819b)
+![image](https://github.com/user-attachments/assets/cbd1f541-ddf8-456c-a90b-60bec99add47)
+
+now you can perform update user info , and also you can add/delete hobbies , professional info etc 
+
+DB Setup 
+Create Databse in sql server 
+
+And update the connection string in **Pharoslab.Web.API**
+
+update in below screen 
+![image](https://github.com/user-attachments/assets/2ea24eef-91d1-4b25-a1a9-665b10cc445d)
+
+
+Now right click on Database project and publish like below
+
+![image](https://github.com/user-attachments/assets/d12cdc05-a733-40bd-aaea-89d37c576bd1)
+
+you can see above screen ,now you can enter the servername and database and credetails if any then publish
+
+
+Autometicaly publish the database to your server 
+
+now you can run the application and give you the response for login 
+
+
+**Cheers** 

@@ -48,6 +48,10 @@
                     successCallback: handleUserClaimSuccess,
                     errorCallback: handleAuthenticationError
                 });
+            } else {
+                console.error(response.statusMessage);
+                toastr.error(response.statusMessage, 'Error');
+                $(".se-pre-con").hide();
             }
            
         }
@@ -70,10 +74,12 @@
                 $(".se-pre-con").hide();
             }
             $(".se-pre-con").hide();
+            toastr.success('Login success now we are redirecting to dashboard!', 'Success');
         }
         function handleAuthenticationError(xhr, status, error) {
             console.error("Error in upserting data to server: " + error);
             $(".se-pre-con").hide();
+            toastr.error(error, 'Error');
         }
         function updateEnvironmentAndVersion() {
             var environment = storageService.get('Environment');

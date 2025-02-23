@@ -6,7 +6,6 @@
     self.currectSelectedUser = {};
     self.init = function () {
         //  kendo.ui.licensing.setLicenseKey("NONE");
-        console.log(typeof $.fn.kendoGrid);
         var appuser = storageService.get("ApplicationUser");
         if (appuser) {
             self.ApplicationUser = appuser;
@@ -263,8 +262,10 @@
                     }
                     console.info(response);
                     hideLoader();
+                    toastr.success('User details prcessed successfully!', 'Success');
                 },
                 errorCallback: function (xhr, status, error) {
+                    toastr.error(error, 'Error');
                     console.error("Error in saving user data: " + error);
                 }
             });
@@ -331,10 +332,13 @@
                 self.PrepareUserHobbiesInformationUI();
                 console.info(response);
                 hideLoader();
+
+                toastr.success('User hobbies are processed!', 'Success');
             },
             errorCallback: function (xhr, status, error) {
                 console.error("Error in upserting data to server: " + error);
                 hideLoader();
+                toastr.error(error, 'Error');
             }
         });
     }
@@ -412,10 +416,12 @@
                 self.PrepareUserProfessionalInformationUI();
                 console.info(response);
                 hideLoader();
+                toastr.success('User professional details processed successfully!', 'Success');
             },
             errorCallback: function (xhr, status, error) {
                 console.error("Error in upserting data to server: " + error);
                 hideLoader();
+                toastr.error(error, 'Error');
             }
         });
     };

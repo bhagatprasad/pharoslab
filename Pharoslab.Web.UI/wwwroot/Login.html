@@ -16,6 +16,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="assets/css/sidebar.css" rel="stylesheet" />
     <link href="assets/css/loader.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+  
 </head>
 <body class="">
     <div class="se-pre-con"></div>
@@ -48,7 +50,7 @@
                                     </div>
 
                                 </div>
-                               
+
                                 <div class="custom-control custom-checkbox text-left mb-4 mt-2">
                                     <input type="checkbox" class="custom-control-input" id="customCheck1">
                                     <label class="custom-control-label" for="customCheck1">Save credentials.</label>
@@ -68,6 +70,8 @@
                 $(function () {
                     var ctrl = new AccountController();
                     ctrl.init();
+
+
                 });
             </script>
         </div>
@@ -83,6 +87,7 @@
     <script src="js/CommonController.js"></script>
     <script src="js/StorageService.js"></script>
     <script src="js/ConnectivityController.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script>
         $(window).on('load', function () {
             $(".se-pre-con").hide();
@@ -95,6 +100,23 @@
         $(document).ajaxComplete(function () {
             $(".se-pre-con").hide();
         });
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
     </script>
 </body>
 </html>
